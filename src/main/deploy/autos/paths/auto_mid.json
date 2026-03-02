@@ -76,14 +76,20 @@
       "lib_key": "shoot"
     },
     {
+      "type": "translation",
+      "x_meters": 6.329819814999365,
+      "y_meters": 6.277764682601113,
+      "intermediate_handoff_radius_meters": 0.2
+    },
+    {
       "type": "waypoint",
       "translation_target": {
-        "x_meters": 6.479816954527866,
-        "y_meters": 4.437366893683426,
+        "x_meters": 6.355776256279395,
+        "y_meters": 4.742885854886562,
         "intermediate_handoff_radius_meters": 0.2
       },
       "rotation_target": {
-        "rotation_radians": 0.0,
+        "rotation_radians": 1.5771964126448468,
         "profiled_rotation": true
       }
     }

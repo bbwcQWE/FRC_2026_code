@@ -6,11 +6,14 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.RPM;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.DistanceUtils;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
@@ -69,6 +72,7 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public Command aimAtTarget(double distance, double targetHeight) {
     isAiming = true;
+    this.targetDistance = distance; // 保存目标距离供 isReadyToShoot() 使用
     Logger.recordOutput("Shooter/TargetDistance", distance);
     Logger.recordOutput("Shooter/TargetHeight", targetHeight);
 
