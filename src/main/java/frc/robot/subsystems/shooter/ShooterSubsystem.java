@@ -7,14 +7,12 @@ import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.RPM;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLog;
@@ -346,30 +344,30 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
-   * 执行SOTM瞄准（移动中射击）
-   * 注意：建议使用periodic()中的自动计算，只在需要时调用此方法获取结果
+   * 执行SOTM瞄准（移动中射击） 注意：建议使用periodic()中的自动计算，只在需要时调用此方法获取结果
    *
    * @return SOTM瞄准命令
    */
   public Command aimSOTM() {
-    return run(() -> {
-      if (drive != null && isSOTMEnabled) {
-        // 获取机器人当前位置和速度
-        currentRobotPose = drive.getPose();
-        currentRobotSpeeds = drive.getFieldSpeeds();
+    return run(
+        () -> {
+          if (drive != null && isSOTMEnabled) {
+            // 获取机器人当前位置和速度
+            currentRobotPose = drive.getPose();
+            currentRobotSpeeds = drive.getFieldSpeeds();
 
-        // 计算SOTM参数
-        sotmParams = sotmCalculator.calculate(currentRobotPose, currentRobotSpeeds);
+            // 计算SOTM参数
+            sotmParams = sotmCalculator.calculate(currentRobotPose, currentRobotSpeeds);
 
-        if (sotmParams != null && sotmParams.isValid()) {
-          // 更新速度供应器
-          flywheelVelocitySupplier = () -> sotmParams.flywheelRpm();
+            if (sotmParams != null && sotmParams.isValid()) {
+              // 更新速度供应器
+              flywheelVelocitySupplier = () -> sotmParams.flywheelRpm();
 
-          isReady = true;
-          isAiming = true;
-        }
-      }
-    });
+              isReady = true;
+              isAiming = true;
+            }
+          }
+        });
   }
 
   @Override

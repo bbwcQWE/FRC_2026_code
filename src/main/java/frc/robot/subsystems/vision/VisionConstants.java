@@ -5,16 +5,94 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 /** 视觉常量 - 配置视觉子系统的参数 */
 public class VisionConstants {
-  // AprilTag场地布局
-  public static AprilTagFieldLayout aprilTagLayout =
-      AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
-  // 相机名称，必须与处理器上配置的名称匹配
-  public static String camera0Name = "camera_0";
-  public static String camera1Name = "camera_1";
+  /** AprilTag场地类型枚举 */
+  public enum AprilTagFieldType {
+    kDefault("默认场地 (2025)"),
+    kCustom("自定义场地 (11319)");
+
+    private final String displayName;
+
+    AprilTagFieldType(String displayName) {
+      this.displayName = displayName;
+    }
+
+    public String getDisplayName() {
+      return displayName;
+    }
+  }
+
+  // AprilTag场地布局 - 动态加载
+  public static AprilTagFieldLayout aprilTagLayout;
+
+  // 场地选择器 - 用于在Dashboard上选择场地
+  public static final SendableChooser<AprilTagFieldType> fieldChooser = new SendableChooser<>();
+
+  // 当前选择的场地类型
+  public static AprilTagFieldType currentFieldType = AprilTagFieldType.kDefault;
+
+  static {
+    // 配置默认选项
+    fieldChooser.setDefaultOption(
+        AprilTagFieldType.kDefault.getDisplayName(), AprilTagFieldType.kDefault);
+    fieldChooser.addOption(AprilTagFieldType.kCustom.getDisplayName(), AprilTagFieldType.kCustom);
+
+    // 初始化默认场地
+    loadField(AprilTagFieldType.kDefault);
+
+    // 注册到NetworkTable
+    edu.wpi.first.wpilibj.smartdashboard.SmartDashboard.putData(
+        "AprilTag Field Selector", fieldChooser);
+  }
+
+  /**
+   * 加载指定的场地布局
+   *
+   * @param fieldType 场地类型
+   */
+  public static void loadField(AprilTagFieldType fieldType) {
+    currentFieldType = fieldType;
+    try {
+      switch (fieldType) {
+        case kCustom:
+          // 加载自定义场地
+          aprilTagLayout = AprilTagFieldLayout.loadFromResource("11319CostField_V1.json");
+          System.out.println("[VisionConstants] 已加载自定义AprilTag场地: 11319CostField_V1.json");
+          break;
+        case kDefault:
+        default:
+          // 加载默认场地 (2025赛季)
+          aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+          System.out.println("[VisionConstants] 已加载默认AprilTag场地: kDefaultField");
+          break;
+      }
+    } catch (Exception e) {
+      System.err.println("[VisionConstants] 加载场地失败: " + e.getMessage() + ", 回退到默认场地");
+      try {
+        aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+        currentFieldType = AprilTagFieldType.kDefault;
+      } catch (Exception e2) {
+        System.err.println("[VisionConstants] 严重错误: 无法加载默认场地: " + e2.getMessage());
+      }
+    }
+  }
+
+  /** 根据Dashboard选择更新场地 - 应该在机器人启动时调用 */
+  public static void updateFieldFromChooser() {
+    AprilTagFieldType selected = fieldChooser.getSelected();
+    if (selected != null && selected != currentFieldType) {
+      loadField(selected);
+    }
+  }
+
+  // Limelight相机名称，必须与Limelight上配置的名称匹配
+  // Limelight使用NetworkTables，不需要额外依赖
+  public static String camera0Name = "limelight";
+  public static String camera1Name = "limelight";
 
   // 机器人到相机的变换
   // (Limelight不使用，请在Web UI中配置)

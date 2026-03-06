@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.DynamicBLineFollowCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.lib.BLine.*;
 import frc.robot.subsystems.bline.BLinePathFollower;
@@ -36,7 +37,7 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
-import frc.robot.subsystems.vision.VisionIOPhotonVision;
+import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.Zones;
 import java.util.function.Supplier;
@@ -82,6 +83,9 @@ public class RobotContainer {
 
   /** 机器人的容器。包含子系统、OI设备和命令。 */
   public RobotContainer() {
+    // 更新AprilTag场地选择（根据Dashboard选择）
+    VisionConstants.updateFieldFromChooser();
+
     switch (Constants.currentMode) {
       case REAL:
         // 真实机器人，实例化硬件IO实现
@@ -94,14 +98,12 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
-        // 使用PhotonVision相机实例化视觉子系统
+        // 使用Limelight相机实例化视觉子系统
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVision(
-                    VisionConstants.camera0Name, VisionConstants.robotToCamera0),
-                new VisionIOPhotonVision(
-                    VisionConstants.camera1Name, VisionConstants.robotToCamera1));
+                new VisionIOLimelight(VisionConstants.camera0Name, drive::getRotation),
+                new VisionIOLimelight(VisionConstants.camera1Name, drive::getRotation));
 
         // 初始化feeder和intake子系统
         feeder = new FeederSubsystem();
@@ -367,6 +369,13 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
+
+    // 按下RB按钮时，从当前位置动态生成BLine路径到目标位置 (6.4, 6.5)
+    mainController
+        .rightBumper()
+        .onTrue(
+            new DynamicBLineFollowCommand(
+                drive, blinePathFollower.getPathBuilder(), new Translation2d(6.4, 6.5)));
 
     // ==================== BLine 自动中断功能 ====================
     // 主手柄左摇杆 - 当驾驶员实际移动摇杆时（超过阈值）取消自动并切换到手动驾驶

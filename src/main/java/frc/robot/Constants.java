@@ -67,17 +67,17 @@ public final class Constants {
         new Translation2d(TURRET_OFFSET_X, TURRET_OFFSET_Y);
 
     // ========== SOTM相关常量 ==========
-    
+
     // Hub位置（蓝方坐标系）- FRC 2026 REEFSCAPE
     // TODO: 需根据官方场地图纸核实
     public static final double BLUE_HUB_X = 0.0;
     public static final double BLUE_HUB_Y = 5.5;
     public static final Translation2d BLUE_HUB = new Translation2d(BLUE_HUB_X, BLUE_HUB_Y);
-    
+
     // SOTM LUT有效距离范围（米）
     public static final double SOTM_MIN_DISTANCE = 1.5;
     public static final double SOTM_MAX_DISTANCE = 6.0;
-    
+
     // 默认延迟补偿（秒）- 包含相机、处理、CAN、电机响应
     // TODO: 需根据实际系统测试标定
     public static final double SOTM_DEFAULT_LATENCY = 0.10;

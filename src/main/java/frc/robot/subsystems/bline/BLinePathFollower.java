@@ -9,6 +9,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lib.BLine.*;
 import frc.robot.subsystems.drive.Drive;
@@ -175,6 +176,56 @@ public class BLinePathFollower extends SubsystemBase {
       throw new IllegalStateException("当前没有设置路径，请先加载或创建路径");
     }
     return pathBuilder.build(currentPath);
+  }
+
+  /**
+   * 创建从当前位置到目标位置的路径并构建跟随命令
+   *
+   * @param targetTranslation 目标位置 (Translation2d)
+   * @param targetRotation 目标朝向 (Rotation2d，可为null表示保持当前朝向)
+   * @return 路径跟随命令
+   */
+  public Command createAndFollowPathTo(Translation2d targetTranslation, Rotation2d targetRotation) {
+    // 获取当前位置作为起点
+    Pose2d currentPose = drive.getPose();
+    Translation2d startTranslation = currentPose.getTranslation();
+    Rotation2d startRotation = currentPose.getRotation();
+
+    // 如果没有指定目标朝向，使用起点朝向
+    if (targetRotation == null) {
+      targetRotation = startRotation;
+    }
+
+    // 创建从当前位置到目标位置的路径
+    // 使用两个waypoint：起点和终点
+    Path dynamicPath =
+        new Path(
+            new Path.Waypoint(startTranslation, 0.2, startRotation),
+            new Path.Waypoint(targetTranslation, 0.2, targetRotation));
+
+    currentPath = dynamicPath;
+
+    // 构建并返回跟随命令（不带姿态重置，保持当前位姿）
+    return pathBuilder.build(dynamicPath);
+  }
+
+  /**
+   * 创建从当前位置到目标位置的路径并构建跟随命令（使用默认朝向）
+   *
+   * @param targetTranslation 目标位置 (Translation2d)
+   * @return 路径跟随命令
+   */
+  public Command createAndFollowPathTo(Translation2d targetTranslation) {
+    return createAndFollowPathTo(targetTranslation, null);
+  }
+
+  /**
+   * 获取路径构建器（用于自定义命令）
+   *
+   * @return FollowPath.Builder实例
+   */
+  public FollowPath.Builder getPathBuilder() {
+    return pathBuilder;
   }
 
   /**

@@ -27,13 +27,10 @@ import org.littletonrobotics.junction.Logger;
 /**
  * SOTM计算器 - 实现移动中射击的核心计算
  *
- * 基于Eeshwar/WPILib向量方案: V_shot = V_target - V_robot
+ * <p>基于Eeshwar/WPILib向量方案: V_shot = V_target - V_robot
  *
- * 核心功能:
- * 1. 延迟补偿 - 将机器人位置向前推移
- * 2. 炮塔偏移补偿 - 考虑炮塔相对于机器人中心的偏移
- * 3. 向量减法 - 计算补偿后的射击向量
- * 4. 逆向查表 - 从所需速度反推距离获取RPM/Hood
+ * <p>核心功能: 1. 延迟补偿 - 将机器人位置向前推移 2. 炮塔偏移补偿 - 考虑炮塔相对于机器人中心的偏移 3. 向量减法 - 计算补偿后的射击向量 4. 逆向查表 -
+ * 从所需速度反推距离获取RPM/Hood
  */
 public class SOTMCalculator {
   private static SOTMCalculator instance;
@@ -47,7 +44,7 @@ public class SOTMCalculator {
       AngularVelocity flywheelRpm, // 飞轮目标转速
       double distance, // 目标距离
       boolean isValid // 是否有效（距离在范围内）
-  ) {}
+      ) {}
 
   // LUT数据结构: distance → {hoodAngle, rpm, timeOfFlight}
   public record ShooterTableEntry(Angle hoodAngle, AngularVelocity rpm, double timeOfFlight) {}
@@ -100,9 +97,7 @@ public class SOTMCalculator {
     return instance;
   }
 
-  /**
-   * 线性插值获取LUT值
-   */
+  /** 线性插值获取LUT值 */
   private ShooterTableEntry getInterpolatedEntry(double distance) {
     if (distance <= MIN_DISTANCE) {
       return shotTable.get(MIN_DISTANCE);
@@ -129,23 +124,19 @@ public class SOTMCalculator {
     ShooterTableEntry ceiling = shotTable.get(ceilingKey);
 
     // 插值计算
-    double interpolatedHood = floor.hoodAngle().in(Degrees) + 
-        t * (ceiling.hoodAngle().in(Degrees) - floor.hoodAngle().in(Degrees));
-    double interpolatedRpm = floor.rpm().in(RPM) + 
-        t * (ceiling.rpm().in(RPM) - floor.rpm().in(RPM));
-    double interpolatedToF = floor.timeOfFlight() + 
-        t * (ceiling.timeOfFlight() - floor.timeOfFlight());
+    double interpolatedHood =
+        floor.hoodAngle().in(Degrees)
+            + t * (ceiling.hoodAngle().in(Degrees) - floor.hoodAngle().in(Degrees));
+    double interpolatedRpm =
+        floor.rpm().in(RPM) + t * (ceiling.rpm().in(RPM) - floor.rpm().in(RPM));
+    double interpolatedToF =
+        floor.timeOfFlight() + t * (ceiling.timeOfFlight() - floor.timeOfFlight());
 
     return new ShooterTableEntry(
-        Degrees.of(interpolatedHood),
-        RPM.of(interpolatedRpm),
-        interpolatedToF);
+        Degrees.of(interpolatedHood), RPM.of(interpolatedRpm), interpolatedToF);
   }
 
-  /**
-   * 初始化查找表数据
-   * 注意：ToF数据需通过实际测试获得，此处使用参考值
-   */
+  /** 初始化查找表数据 注意：ToF数据需通过实际测试获得，此处使用参考值 */
   private void initializeLUT() {
     // 距离 → {hoodAngle, rpm, timeOfFlight}
     // 格式: distance(m), {hoodAngle(deg), rpm, timeOfFlight(s)}
@@ -194,8 +185,8 @@ public class SOTMCalculator {
 
     if (alliance == Alliance.Red) {
       // 红方：翻转X坐标
-      double fieldLength = Constants.FieldConstants.FIELD_LENGTH.in(
-          edu.wpi.first.units.Units.Meters);
+      double fieldLength =
+          Constants.FieldConstants.FIELD_LENGTH.in(edu.wpi.first.units.Units.Meters);
       return new Translation2d(fieldLength - blueHub.getX(), blueHub.getY());
     }
 
@@ -221,29 +212,31 @@ public class SOTMCalculator {
    * @param targetPos 目标位置（场地坐标）
    * @return 射击参数
    */
-  public ShotParams calculate(Pose2d robotPose, ChassisSpeeds robotVelocity, Translation2d targetPos) {
+  public ShotParams calculate(
+      Pose2d robotPose, ChassisSpeeds robotVelocity, Translation2d targetPos) {
     // 获取炮塔偏移
     Translation2d turretOffset = Constants.FieldConstants.TURRET_OFFSET;
 
     // === Step 1: 延迟补偿 ===
     // 将机器人位置向前推移
-    Pose2d futurePose = robotPose.exp(
-        new Twist2d(
-            robotVelocity.vxMetersPerSecond * latencyCompensation,
-            robotVelocity.vyMetersPerSecond * latencyCompensation,
-            robotVelocity.omegaRadiansPerSecond * latencyCompensation));
+    Pose2d futurePose =
+        robotPose.exp(
+            new Twist2d(
+                robotVelocity.vxMetersPerSecond * latencyCompensation,
+                robotVelocity.vyMetersPerSecond * latencyCompensation,
+                robotVelocity.omegaRadiansPerSecond * latencyCompensation));
 
     // === Step 2: 炮塔偏移补偿 ===
     // 炮塔位置 = 机器人位置 + 偏移(旋转到场地坐标)
-    Translation2d turretPos = futurePose.getTranslation()
-        .plus(turretOffset.rotateBy(futurePose.getRotation()));
+    Translation2d turretPos =
+        futurePose.getTranslation().plus(turretOffset.rotateBy(futurePose.getRotation()));
 
     // === Step 3: 炮塔速度计算（包含离心分量）===
     // V_turret = V_robot + ω × r_offset
-    double turretVelX = robotVelocity.vxMetersPerSecond
-        - robotVelocity.omegaRadiansPerSecond * turretOffset.getY();
-    double turretVelY = robotVelocity.vyMetersPerSecond
-        + robotVelocity.omegaRadiansPerSecond * turretOffset.getX();
+    double turretVelX =
+        robotVelocity.vxMetersPerSecond - robotVelocity.omegaRadiansPerSecond * turretOffset.getY();
+    double turretVelY =
+        robotVelocity.vyMetersPerSecond + robotVelocity.omegaRadiansPerSecond * turretOffset.getX();
     Translation2d turretVelocity = new Translation2d(turretVelX, turretVelY);
 
     // === Step 4: 目标向量 ===
@@ -256,14 +249,8 @@ public class SOTMCalculator {
 
     if (!isValid) {
       // 距离超出范围，返回默认值
-      cachedParams = new ShotParams(
-          targetAngle,
-          0.0,
-          Degrees.of(45.0),
-          0.0,
-          RPM.of(4000.0),
-          distance,
-          false);
+      cachedParams =
+          new ShotParams(targetAngle, 0.0, Degrees.of(45.0), 0.0, RPM.of(4000.0), distance, false);
       return cachedParams;
     }
 
@@ -300,24 +287,27 @@ public class SOTMCalculator {
     double hoodVelocityFdb = 0.0;
 
     if (lastTurretAngle != null && !Double.isNaN(lastHoodAngle)) {
-      turretVelocityFdb = turretAngleFilter.calculate(
-          shotAngle.minus(lastTurretAngle).getRadians() / LOOP_PERIOD_SECS);
-      hoodVelocityFdb = hoodAngleFilter.calculate(
-          (adjustedParams.hoodAngle().in(Degrees) - lastHoodAngle) / LOOP_PERIOD_SECS);
+      turretVelocityFdb =
+          turretAngleFilter.calculate(
+              shotAngle.minus(lastTurretAngle).getRadians() / LOOP_PERIOD_SECS);
+      hoodVelocityFdb =
+          hoodAngleFilter.calculate(
+              (adjustedParams.hoodAngle().in(Degrees) - lastHoodAngle) / LOOP_PERIOD_SECS);
     }
 
     lastTurretAngle = shotAngle;
     lastHoodAngle = adjustedParams.hoodAngle().in(Degrees);
 
     // 构建结果
-    cachedParams = new ShotParams(
-        shotAngle,
-        turretVelocityFdb,
-        adjustedParams.hoodAngle(),
-        hoodVelocityFdb,
-        adjustedParams.rpm(),
-        distance,
-        true);
+    cachedParams =
+        new ShotParams(
+            shotAngle,
+            turretVelocityFdb,
+            adjustedParams.hoodAngle(),
+            hoodVelocityFdb,
+            adjustedParams.rpm(),
+            distance,
+            true);
 
     // 记录日志
     Logger.recordOutput("SOTM/TurretAngle", shotAngle.getDegrees());
@@ -330,9 +320,7 @@ public class SOTMCalculator {
     return cachedParams;
   }
 
-  /**
-   * 获取延迟补偿参数
-   */
+  /** 获取延迟补偿参数 */
   public double getLatencyCompensation() {
     return latencyCompensation;
   }
@@ -346,16 +334,12 @@ public class SOTMCalculator {
     this.latencyCompensation = latency;
   }
 
-  /**
-   * 获取缓存的最新参数
-   */
+  /** 获取缓存的最新参数 */
   public ShotParams getCachedParams() {
     return cachedParams;
   }
 
-  /**
-   * 重置计算器状态
-   */
+  /** 重置计算器状态 */
   public void reset() {
     lastTurretAngle = null;
     lastHoodAngle = Double.NaN;
@@ -373,7 +357,8 @@ public class SOTMCalculator {
    * @param timeOfFlight 飞行时间（秒）
    */
   public void updateLUT(double distance, double hoodAngle, double rpm, double timeOfFlight) {
-    shotTable.put(distance, new ShooterTableEntry(Degrees.of(hoodAngle), RPM.of(rpm), timeOfFlight));
+    shotTable.put(
+        distance, new ShooterTableEntry(Degrees.of(hoodAngle), RPM.of(rpm), timeOfFlight));
     timeOfFlightMap.put(distance, timeOfFlight);
 
     // 更新逆向映射
