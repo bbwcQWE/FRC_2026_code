@@ -79,6 +79,9 @@ public class Robot extends LoggedRobot {
     // 必须从机器人的periodic块调用此方法，Command-based框架才能正常工作。
     CommandScheduler.getInstance().run();
 
+    // 更新Field2d Dashboard - 将机器人Pose显示到Elastic Dashboard
+    robotContainer.getField2dDashboard().update();
+
     // 恢复非实时线程优先级（请勿修改第一个参数）
     // Threads.setCurrentThreadPriority(false, 10);
   }

@@ -39,6 +39,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import frc.robot.util.Field2dDashboard;
 import frc.robot.util.Zones;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -70,6 +71,9 @@ public class RobotContainer {
 
   // Zone Trigger - 用于命令绑定
   public Trigger inTrenchZoneTrigger;
+
+  // Field2d Dashboard - 用于在Elastic Dashboard上显示机器人Pose
+  private Field2dDashboard field2dDashboard;
 
   // 控制器
   // 主控制器(插槽0) - 驾驶员控制驱动
@@ -184,6 +188,9 @@ public class RobotContainer {
     turretPoseSupplier =
         () -> drive.getPose().getTranslation().plus(Constants.FieldConstants.TURRET_OFFSET);
     turretFieldSpeedsSupplier = drive::getFieldSpeeds;
+
+    // 初始化Field2d Dashboard - 用于在Elastic Dashboard上显示机器人Pose
+    field2dDashboard = new Field2dDashboard(drive::getPose);
 
     // 初始化Trench Zone (使用Constants中的值)
     // x: 0到5.5米, y: 2.5到4.5米
@@ -472,6 +479,15 @@ public class RobotContainer {
    */
   public Drive getDrive() {
     return drive;
+  }
+
+  /**
+   * 获取Field2dDashboard实例
+   *
+   * @return Field2dDashboard实例
+   */
+  public Field2dDashboard getField2dDashboard() {
+    return field2dDashboard;
   }
 
   // /**
