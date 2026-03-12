@@ -40,10 +40,17 @@ public class TurretSubsystem extends SubsystemBase {
     public Angle position = Degrees.of(0);
     public double voltage = 0;
     public double current = 0;
+    // CRT 相关输入
+    public double crtAngle = 0;
+    public String crtStatus = "NOT_INIT";
   }
 
   private final TurretInputsAutoLogged turretInputs = new TurretInputsAutoLogged();
 
+  // CRT 计算器实例
+  private final TurretCRTCalculator crtCalculator;
+
+  // 电机配置
   private final TalonFX turretMotor = new TalonFX(19);
 
   private final SmartMotorControllerConfig motorConfig =
@@ -71,13 +78,46 @@ public class TurretSubsystem extends SubsystemBase {
 
   private final Pivot turret = new Pivot(turretConfig);
 
+  public TurretSubsystem() {
+    // 初始化 CRT 计算器
+    crtCalculator = new TurretCRTCalculator();
+
+    // 使用 CRT 计算结果初始化电机位置
+    initializeFromCRT();
+  }
+
+  /** 使用 CRT 计算结果初始化电机编码器位置 */
+  private void initializeFromCRT() {
+    // 使用CRT计算结果初始化电机位置
+    var crtAngle = crtCalculator.getAngle();
+    if (crtAngle.isPresent()) {
+      turretSMC.setEncoderPosition(crtAngle.get());
+      Logger.recordOutput("Turret/CRTInitialized", true);
+    } else {
+      Logger.recordOutput("Turret/CRTInitialized", false);
+      Logger.recordOutput("Turret/CRTInitError", "No valid CRT angle available");
+      System.out.println("[TurretCRT] WARNING: No valid CRT angle for initialization");
+    }
+  }
+
   private void updateInputs() {
     turretInputs.position = turret.getAngle();
     turretInputs.voltage = turretSMC.getVoltage().in(Volts);
     turretInputs.current = turretSMC.getStatorCurrent().in(Amps);
-  }
 
-  public TurretSubsystem() {}
+    // 更新 CRT 状态
+    if (crtCalculator != null) {
+      turretInputs.crtStatus = crtCalculator.getStatus();
+      crtCalculator
+          .getAngle()
+          .ifPresent(
+              angle -> {
+                turretInputs.crtAngle = angle.in(Degrees);
+              });
+      // 记录诊断
+      crtCalculator.logDiagnostics();
+    }
+  }
 
   public Command setAngle(Angle angle) {
     Logger.recordOutput("Turret/Setpoint", angle);
@@ -100,6 +140,27 @@ public class TurretSubsystem extends SubsystemBase {
 
   public Angle getAngle() {
     return turretInputs.position;
+  }
+
+  /** 获取 CRT 计算的绝对角度 */
+  public Angle getCRTMechAngle() {
+    return crtCalculator.getAngle().orElse(Degrees.of(0));
+  }
+
+  /** 获取 CRT 状态 */
+  public String getCRTStatus() {
+    return crtCalculator.getStatus();
+  }
+
+  /** 重新同步 CRT 角度 */
+  public Command resyncCRT() {
+    return new Command() {
+      @Override
+      public void initialize() {
+        initializeFromCRT();
+        Logger.recordOutput("Turret/CRTResync", true);
+      }
+    };
   }
 
   public Command sysId() {

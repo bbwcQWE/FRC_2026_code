@@ -58,6 +58,10 @@ public class ShooterSubsystem extends SubsystemBase {
   private static final double FLYWHEEL_MIN_RPM = 1000.0; // 飞轮最小转速
   private static final double FLYWHEEL_MAX_RPM = 6000.0; // 飞轮最大转速
 
+  // 容差参数
+  private static final double VELOCITY_TOLERANCE_RPM = 200.0; // 速度容差 (RPM)
+  private static final double HOOD_ANGLE_TOLERANCE_DEG = 1.5; // Hood角度容差 (度)
+
   // Drive子系统引用（用于获取机器人的位姿和速度）
   private Drive drive = null;
 
@@ -162,7 +166,7 @@ public class ShooterSubsystem extends SubsystemBase {
     double hoodError =
         Math.abs(hood.getAngle().in(Degrees) - calculateShotParameters(targetDistance, 0)[0]);
 
-    return rpmError < 200 && hoodError < 5 && !isShooting;
+    return rpmError < VELOCITY_TOLERANCE_RPM && hoodError < HOOD_ANGLE_TOLERANCE_DEG && !isShooting;
   }
 
   /**

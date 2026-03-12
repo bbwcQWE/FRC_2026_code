@@ -8,10 +8,13 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -35,6 +38,7 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.feeder.FeederSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIOLimelight;
@@ -56,7 +60,7 @@ public class RobotContainer {
   private HoodSubsystem hood;
   private final FeederSubsystem feeder;
   private final IntakeSubsystem intake;
-  // private final ShooterSubsystem shooter;
+  private final ShooterSubsystem shooter;
 
   // Zone相关的Suppliers - 在构造函数中初始化
   private Supplier<Pose2d> poseSupplier;
@@ -113,7 +117,7 @@ public class RobotContainer {
         intake = new IntakeSubsystem();
 
         // 初始化shooter子系统
-        // shooter = new ShooterSubsystem();
+        shooter = new ShooterSubsystem();
         break;
 
       case SIM:
@@ -138,7 +142,7 @@ public class RobotContainer {
         intake = new IntakeSubsystem();
 
         // 初始化shooter子系统
-        // shooter = new ShooterSubsystem();
+        shooter = new ShooterSubsystem();
         break;
 
       default:
@@ -159,7 +163,7 @@ public class RobotContainer {
         intake = new IntakeSubsystem();
 
         // 初始化shooter子系统
-        // shooter = new ShooterSubsystem();
+        shooter = new ShooterSubsystem();
         break;
     }
 
@@ -171,11 +175,10 @@ public class RobotContainer {
     intake.register();
 
     // 注册shooter子系统以启用periodic()调用
-    // shooter.register();
+    shooter.register();
 
-    // Initialize HoodSubsystem
-    hood = new HoodSubsystem();
-    hood.register();
+    // 使用ShooterSubsystem中管理的HoodSubsystem
+    hood = shooter.getHood();
 
     // 初始化Zone相关的Suppliers
     poseSupplier = drive::getPose;
@@ -458,6 +461,149 @@ public class RobotContainer {
       inTrenchZoneTrigger.onTrue(hood.setAngle(Constants.FieldConstants.MIN_HOOD_ANGLE));
       inTrenchZoneTrigger.onFalse(hood.setAngle(Constants.FieldConstants.DEFAULT_HOOD_ANGLE));
     }
+
+    // ==================== 手动模式C控制 (全手动模式) ====================
+    // 手动模式状态变量
+    final boolean[] isManualModeC = {false};
+    final boolean[] hoodAngleToggle = {false}; // false: 紧贴枢纽, true: 5单位距离
+
+    // 右摇杆按下 - 切换到手动模式C (禁用所有自动功能)
+    mainController
+        .rightStick()
+        .onTrue(
+            Commands.run(
+                () -> {
+                  isManualModeC[0] = !isManualModeC[0];
+                  System.out.println(
+                      "[Manual Mode C] " + (isManualModeC[0] ? "Enabled" : "Disabled"));
+                  // 切换到手动模式时，禁用所有自动功能
+                  if (isManualModeC[0]) {
+                    CommandScheduler.getInstance().cancelAll();
+                  }
+                },
+                drive));
+
+    // 手动模式C下：肩键L - 炮塔向左手动旋转
+    mainController
+        .leftBumper()
+        .whileTrue(
+            Commands.run(
+                () -> {
+                  if (isManualModeC[0]) {
+                    // 手动向左旋转炮塔 (负速度)
+                    shooter
+                        .getTurret()
+                        .setAngleDirect(
+                            Degrees.of(shooter.getTurret().getAngle().in(Degrees) - 2.0));
+                  }
+                },
+                shooter));
+
+    // 手动模式C下：肩键R - 炮塔向右手动旋转
+    mainController
+        .rightBumper()
+        .whileTrue(
+            Commands.run(
+                () -> {
+                  if (isManualModeC[0]) {
+                    // 手动向右旋转炮塔 (正速度)
+                    shooter
+                        .getTurret()
+                        .setAngleDirect(
+                            Degrees.of(shooter.getTurret().getAngle().in(Degrees) + 2.0));
+                  }
+                },
+                shooter));
+
+    // 手动模式C下：D-pad下 - 切换Hood角度
+    // false: 紧贴枢纽入框角度, true: 5单位距离时的射击角度
+    mainController
+        .povDown()
+        .onTrue(
+            Commands.run(
+                () -> {
+                  if (isManualModeC[0]) {
+                    hoodAngleToggle[0] = !hoodAngleToggle[0];
+                    Angle newAngle;
+                    if (hoodAngleToggle[0]) {
+                      // 5单位距离时的射击角度 (假设约为45度)
+                      newAngle = Degrees.of(45);
+                      System.out.println("[Manual Mode C] Hood: 5 unit distance angle");
+                    } else {
+                      // 紧贴枢纽入框角度 (假设约为25度)
+                      newAngle = Degrees.of(25);
+                      System.out.println("[Manual Mode C] Hood: Hub proximity angle");
+                    }
+                    shooter.getHood().setAngle(newAngle);
+                  }
+                },
+                shooter));
+
+    // ==================== 操作手柄调试控制 (炮塔5度步进, Hood 1度步进) ====================
+    // 操作手柄左肩键(LB) - 炮塔向左5度
+    operatorController
+        .leftBumper()
+        .onTrue(
+            Commands.run(
+                () -> {
+                  double currentAngle = shooter.getTurret().getAngle().in(Degrees);
+                  shooter.getTurret().setAngleDirect(Degrees.of(currentAngle - 5.0));
+                  System.out.println("[Operator] Turret: " + (currentAngle - 5.0) + " deg");
+                },
+                shooter));
+
+    // 操作手柄右肩键(RB) - 炮塔向右5度
+    operatorController
+        .rightBumper()
+        .onTrue(
+            Commands.run(
+                () -> {
+                  double currentAngle = shooter.getTurret().getAngle().in(Degrees);
+                  shooter.getTurret().setAngleDirect(Degrees.of(currentAngle + 5.0));
+                  System.out.println("[Operator] Turret: " + (currentAngle + 5.0) + " deg");
+                },
+                shooter));
+
+    // 操作手柄X按钮 - Hood向下1度
+    operatorController
+        .x()
+        .onTrue(
+            Commands.run(
+                () -> {
+                  double currentAngle = shooter.getHood().getAngle().in(Degrees);
+                  shooter.getHood().setAngle(Degrees.of(currentAngle - 1.0));
+                  System.out.println("[Operator] Hood: " + (currentAngle - 1.0) + " deg");
+                },
+                shooter));
+
+    // 操作手柄Y按钮 - Hood向上1度
+    operatorController
+        .y()
+        .onTrue(
+            Commands.run(
+                () -> {
+                  double currentAngle = shooter.getHood().getAngle().in(Degrees);
+                  shooter.getHood().setAngle(Degrees.of(currentAngle + 1.0));
+                  System.out.println("[Operator] Hood: " + (currentAngle + 1.0) + " deg");
+                },
+                shooter));
+
+    // 操作手柄A按钮 - 打印当前炮塔和Hood角度
+    operatorController
+        .a()
+        .onTrue(
+            Commands.run(
+                () -> {
+                  double turretAngle = shooter.getTurret().getAngle().in(Degrees);
+                  double hoodAngle = shooter.getHood().getAngle().in(Degrees);
+                  System.out.println(
+                      "[Operator] Current - Turret: "
+                          + turretAngle
+                          + " deg, Hood: "
+                          + hoodAngle
+                          + " deg");
+                },
+                shooter));
   }
 
   /**

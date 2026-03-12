@@ -22,7 +22,7 @@ import org.littletonrobotics.junction.Logger;
 public class ShooterCommands {
 
   private static final double VELOCITY_TOLERANCE_RPM = 200.0; // 速度容差 (RPM)
-  private static final double HOOD_ANGLE_TOLERANCE_DEG = 5.0; // Hood角度容差 (度)
+  private static final double HOOD_ANGLE_TOLERANCE_DEG = 1.5; // Hood角度容差 (度)
 
   private ShooterCommands() {}
 
