@@ -633,23 +633,23 @@ public class RobotContainer {
     return field2dDashboard;
   }
 
-  // /**
-  //  * 获取Feeder子系统
-  //  *
-  //  * @return FeederSubsystem实例
-  //  */
-  // public FeederSubsystem getFeeder() {
-  //   return feeder;
-  // }
+  /**
+   * 获取Feeder子系统
+   *
+   * @return FeederSubsystem实例
+   */
+  public FeederSubsystem getFeeder() {
+    return feeder;
+  }
 
-  // /**
-  //  * 获取Intake子系统
-  //  *
-  //  * @return IntakeSubsystem实例
-  //  */
-  // public IntakeSubsystem getIntake() {
-  //   return intake;
-  // }
+  /**
+   * 获取Intake子系统
+   *
+   * @return IntakeSubsystem实例
+   */
+  public IntakeSubsystem getIntake() {
+    return intake;
+  }
 
   /**
    * 使用此方法将自动命令传递给主{@link Robot}类。
