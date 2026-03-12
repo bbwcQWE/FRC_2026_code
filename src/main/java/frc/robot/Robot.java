@@ -8,6 +8,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -61,6 +62,10 @@ public class Robot extends LoggedRobot {
 
     // 启动AdvantageKit日志记录器
     Logger.start();
+
+    // 启动USB摄像头自动捕获 (CameraServer)
+    // 将摄像头视频流发送到Dashboard以供查看
+    CameraServer.startAutomaticCapture();
 
     // 实例化RobotContainer将执行所有按钮绑定，并在Dashboard上显示自动选择器
     robotContainer = new RobotContainer();
