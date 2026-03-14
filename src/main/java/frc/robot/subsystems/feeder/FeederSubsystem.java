@@ -59,7 +59,7 @@ public class FeederSubsystem extends SubsystemBase {
           .withTelemetry("WashingMachineMotor", TelemetryVerbosity.HIGH)
           .withGearing(new MechanismGearing(GearBox.fromReductionStages(20, 1)))
           .withIdleMode(MotorMode.COAST)
-          .withMotorInverted(false)
+          .withMotorInverted(true)
           .withStatorCurrentLimit(Amps.of(30));
 
   private final SmartMotorController washingMachineSMC =
@@ -85,7 +85,7 @@ public class FeederSubsystem extends SubsystemBase {
           .withTelemetry("IndexerMotor", TelemetryVerbosity.HIGH)
           .withGearing(new MechanismGearing(GearBox.fromReductionStages(2, 1)))
           .withIdleMode(MotorMode.BRAKE)
-          .withMotorInverted(false)
+          .withMotorInverted(true)
           .withStatorCurrentLimit(Amps.of(30));
 
   private final SmartMotorController indexerSMC =

@@ -55,7 +55,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private final IntakeInputsAutoLogged intakeInputs = new IntakeInputsAutoLogged();
 
-  private final SparkMax turnMotor = new SparkMax(25, MotorType.kBrushless);
+  private final TalonFX turnMotor = new TalonFX(25);
 
   private final SmartMotorControllerConfig turnMotorConfig =
       new SmartMotorControllerConfig(this)
@@ -67,7 +67,7 @@ public class IntakeSubsystem extends SubsystemBase {
           .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
           .withTelemetry("IntakeTurnMotor", TelemetryVerbosity.HIGH)
-          .withGearing(new MechanismGearing(GearBox.fromReductionStages(1, 1)))
+          .withGearing(new MechanismGearing(GearBox.fromReductionStages(45)))
           .withIdleMode(MotorMode.BRAKE)
           .withMotorInverted(false)
           .withStatorCurrentLimit(Amps.of(30))
@@ -75,11 +75,11 @@ public class IntakeSubsystem extends SubsystemBase {
           .withOpenLoopRampRate(Seconds.of(0.1));
 
   private final SmartMotorController turnSMC =
-      new SparkWrapper(turnMotor, DCMotor.getNEO(1), turnMotorConfig);
+      new TalonFXWrapper(turnMotor, DCMotor.getKrakenX44(1), turnMotorConfig);
 
   private final ArmConfig turnConfig =
       new ArmConfig(turnSMC)
-          .withStartingPosition(Degrees.of(0))
+          .withStartingPosition(Degrees.of(90))
           .withTelemetry("IntakeTurnMech", TelemetryVerbosity.HIGH)
           .withSoftLimits(Degrees.of(0), Degrees.of(90))
           .withHardLimit(Degrees.of(-10), Degrees.of(100))
@@ -88,7 +88,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private final Arm turn = new Arm(turnConfig);
 
-  private final TalonFX driveMotor = new TalonFX(26);
+  private final SparkMax driveMotor = new SparkMax(26, MotorType.kBrushless);
 
   private final SmartMotorControllerConfig driveConfig =
       new SmartMotorControllerConfig(this)
@@ -103,9 +103,9 @@ public class IntakeSubsystem extends SubsystemBase {
           .withIdleMode(MotorMode.BRAKE)
           .withMotorInverted(false)
           .withStatorCurrentLimit(Amps.of(30));
-
+          
   private final SmartMotorController driveSMC =
-      new TalonFXWrapper(driveMotor, DCMotor.getKrakenX60(1), driveConfig);
+      new SparkWrapper(driveMotor, DCMotor.getNEO(1), driveConfig);
 
   private final FlyWheelConfig driveFlywheelConfig =
       new FlyWheelConfig(driveSMC).withDiameter(Meters.of(0.0762)).withMass(Kilograms.of(0.5));

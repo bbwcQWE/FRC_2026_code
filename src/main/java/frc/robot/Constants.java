@@ -54,9 +54,9 @@ public final class Constants {
     // 预测时间
     public static final Time DUCK_TIME = Seconds.of(0.2);
 
-    // Hood角度
-    public static final Angle MIN_HOOD_ANGLE = Degrees.of(14); // 收回位置
-    public static final Angle DEFAULT_HOOD_ANGLE = Degrees.of(45); // 默认位置
+    // Hood角度 - 必须与HoodSubsystem软限位(15°-40°)匹配
+    public static final Angle MIN_HOOD_ANGLE = Degrees.of(15); // 收回位置
+    public static final Angle DEFAULT_HOOD_ANGLE = Degrees.of(40); // 软限位上限(保留但设为有效值)
 
     // 炮塔相对于机器人中心的偏移量（米）
     // 正X向右，正Y向上（基于机器人视角）
@@ -79,5 +79,13 @@ public final class Constants {
     // 默认延迟补偿（秒）- 包含相机、处理、CAN、电机响应
     // TODO: 需根据实际系统测试标定
     public static final double SOTM_DEFAULT_LATENCY = 0.10;
+  }
+
+  // ========== Flywheel 物理参数 ==========
+  public static final class FlywheelConstants {
+    // 飞轮直径 (4英寸 = 0.1016m)
+    public static final Distance FLYWHEEL_DIAMETER = Inches.of(4.0);
+    // 飞轮质量 (3磅 = 1.36kg) - 需根据实际测量调整
+    public static final double FLYWHEEL_MASS_KG = 1.36;
   }
 }

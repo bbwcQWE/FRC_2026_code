@@ -7,10 +7,10 @@ package frc.robot.subsystems.shooter;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Volts;
+import static frc.robot.Constants.FlywheelConstants;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.Pair;
@@ -56,8 +56,8 @@ public class FlyWheelSubsystem extends SubsystemBase {
           .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
           .withTelemetry("FlywheelMotor", TelemetryVerbosity.HIGH)
-          .withGearing(new MechanismGearing(GearBox.fromReductionStages(1)))
-          .withMotorInverted(false)
+          .withGearing(new MechanismGearing(GearBox.fromTeeth(18, 28)))
+          .withMotorInverted(true)
           .withIdleMode(MotorMode.COAST)
           .withStatorCurrentLimit(Amps.of(40))
           .withFollowers(Pair.of(new TalonFX(18), true));
@@ -67,9 +67,9 @@ public class FlyWheelSubsystem extends SubsystemBase {
 
   private final FlyWheelConfig flywheelConfig =
       new FlyWheelConfig(motor)
-          .withDiameter(Inches.of(4))
-          .withMass(Kilograms.of(2))
-          .withUpperSoftLimit(RPM.of(5000));
+          .withUpperSoftLimit(RPM.of(3700))
+          .withDiameter(FlywheelConstants.FLYWHEEL_DIAMETER)
+          .withMass(Kilograms.of(FlywheelConstants.FLYWHEEL_MASS_KG));
 
   private final FlyWheel flywheel = new FlyWheel(flywheelConfig);
 

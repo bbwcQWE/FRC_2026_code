@@ -378,12 +378,6 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // 按下RB按钮时，从当前位置动态生成BLine路径到目标位置 (6.4, 6.5)
-    mainController
-        .rightBumper()
-        .onTrue(
-            new DynamicBLineFollowCommand(
-                drive, blinePathFollower.getPathBuilder(), new Translation2d(6.4, 6.5)));
-
     // ==================== BLine 自动中断功能 ====================
     // 主手柄左摇杆 - 当驾驶员实际移动摇杆时（超过阈值）取消自动并切换到手动驾驶
     // 使用Trigger检测摇杆是否超过阈值（0.2），只有故意的操作才会触发
@@ -457,110 +451,110 @@ public class RobotContainer {
     // controller.y().whileTrue(shooter.getHood().sysId());
 
     // Hood自动收回 - 当进入trench区域时收回hood
-    if (hood != null) {
-      inTrenchZoneTrigger.onTrue(hood.setAngle(Constants.FieldConstants.MIN_HOOD_ANGLE));
-      inTrenchZoneTrigger.onFalse(hood.setAngle(Constants.FieldConstants.DEFAULT_HOOD_ANGLE));
-    }
+   // if (hood != null) {
+   //   // 只在进入trench区域时收回hood，离开时不动作（保持原位等待射击命令）
+   //   inTrenchZoneTrigger.onTrue(hood.setAngle(Constants.FieldConstants.MIN_HOOD_ANGLE));
+   // }
 
     // ==================== 手动模式C控制 (全手动模式) ====================
     // 手动模式状态变量
-    final boolean[] isManualModeC = {false};
-    final boolean[] hoodAngleToggle = {false}; // false: 紧贴枢纽, true: 5单位距离
+// final boolean[] isManualModeC = {false};
+// final boolean[] hoodAngleToggle = {false}; // false: 紧贴枢纽, true: 5单位距离
+//
+// // 右摇杆按下 - 切换到手动模式C (禁用所有自动功能)
+// mainController
+//     .rightStick()
+//     .onTrue(
+//         Commands.run(
+//             () -> {
+//               isManualModeC[0] = !isManualModeC[0];
+//               System.out.println(
+//                   "[Manual Mode C] " + (isManualModeC[0] ? "Enabled" : "Disabled"));
+//               // 切换到手动模式时，禁用所有自动功能
+//               if (isManualModeC[0]) {
+//                 CommandScheduler.getInstance().cancelAll();
+//               }
+//             },
+//             drive));
+//
+// // 手动模式C下：肩键L - 炮塔向左手动旋转
+// mainController
+//     .leftBumper()
+//     .whileTrue(
+//         Commands.run(
+//             () -> {
+//               if (isManualModeC[0]) {
+//                 // 手动向左旋转炮塔 (负速度)
+//                 shooter
+//                     .getTurret()
+//                     .setAngleDirect(
+//                         Degrees.of(shooter.getTurret().getAngle().in(Degrees) - 2.0));
+//               }
+//             },
+//             shooter));
+//
+// // 手动模式C下：肩键R - 炮塔向右手动旋转
+// mainController
+//     .rightBumper()
+//     .whileTrue(
+//         Commands.run(
+//             () -> {
+//               if (isManualModeC[0]) {
+//                 // 手动向右旋转炮塔 (正速度)
+//                 shooter
+//                     .getTurret()
+//                     .setAngleDirect(
+//                         Degrees.of(shooter.getTurret().getAngle().in(Degrees) + 2.0));
+//               }
+//             },
+//             shooter));
+//
+// // 手动模式C下：D-pad下 - 切换Hood角度
+// // false: 紧贴枢纽入框角度, true: 5单位距离时的射击角度
+// mainController
+//     .povDown()
+//     .onTrue(
+//         Commands.run(
+//             () -> {
+//               if (isManualModeC[0]) {
+//                 hoodAngleToggle[0] = !hoodAngleToggle[0];
+//                 Angle newAngle;
+//                 if (hoodAngleToggle[0]) {
+//                   // 5单位距离时的射击角度 (假设约为45度)
+//                   newAngle = Degrees.of(45);
+//                   System.out.println("[Manual Mode C] Hood: 5 unit distance angle");
+//                 } else {
+//                   // 紧贴枢纽入框角度 (假设约为25度)
+//                   newAngle = Degrees.of(25);
+//                   System.out.println("[Manual Mode C] Hood: Hub proximity angle");
+//                 }
+//                 shooter.getHood().setAngle(newAngle);
+//               }
+//             },
+//             shooter));
+//
+// // ==================== 操作手柄调试控制 (炮塔5度步进, Hood 1度步进) ====================
+ // 操作手柄左肩键(LB) - 炮塔向左5度
+ operatorController
+     .leftBumper()
+     .onTrue(
+         Commands.run(
+             () -> {
+               double currentAngle = shooter.getTurret().getAngle().in(Degrees);
+               shooter.getTurret().setAngleDirect(Degrees.of(currentAngle - 5.0));
+               System.out.println("[Operator] Turret: " + (currentAngle - 5.0) + " deg");
+             },
+             shooter));
 
-    // 右摇杆按下 - 切换到手动模式C (禁用所有自动功能)
-    mainController
-        .rightStick()
-        .onTrue(
-            Commands.run(
-                () -> {
-                  isManualModeC[0] = !isManualModeC[0];
-                  System.out.println(
-                      "[Manual Mode C] " + (isManualModeC[0] ? "Enabled" : "Disabled"));
-                  // 切换到手动模式时，禁用所有自动功能
-                  if (isManualModeC[0]) {
-                    CommandScheduler.getInstance().cancelAll();
-                  }
-                },
-                drive));
-
-    // 手动模式C下：肩键L - 炮塔向左手动旋转
-    mainController
-        .leftBumper()
-        .whileTrue(
-            Commands.run(
-                () -> {
-                  if (isManualModeC[0]) {
-                    // 手动向左旋转炮塔 (负速度)
-                    shooter
-                        .getTurret()
-                        .setAngleDirect(
-                            Degrees.of(shooter.getTurret().getAngle().in(Degrees) - 2.0));
-                  }
-                },
-                shooter));
-
-    // 手动模式C下：肩键R - 炮塔向右手动旋转
-    mainController
-        .rightBumper()
-        .whileTrue(
-            Commands.run(
-                () -> {
-                  if (isManualModeC[0]) {
-                    // 手动向右旋转炮塔 (正速度)
-                    shooter
-                        .getTurret()
-                        .setAngleDirect(
-                            Degrees.of(shooter.getTurret().getAngle().in(Degrees) + 2.0));
-                  }
-                },
-                shooter));
-
-    // 手动模式C下：D-pad下 - 切换Hood角度
-    // false: 紧贴枢纽入框角度, true: 5单位距离时的射击角度
-    mainController
-        .povDown()
-        .onTrue(
-            Commands.run(
-                () -> {
-                  if (isManualModeC[0]) {
-                    hoodAngleToggle[0] = !hoodAngleToggle[0];
-                    Angle newAngle;
-                    if (hoodAngleToggle[0]) {
-                      // 5单位距离时的射击角度 (假设约为45度)
-                      newAngle = Degrees.of(45);
-                      System.out.println("[Manual Mode C] Hood: 5 unit distance angle");
-                    } else {
-                      // 紧贴枢纽入框角度 (假设约为25度)
-                      newAngle = Degrees.of(25);
-                      System.out.println("[Manual Mode C] Hood: Hub proximity angle");
-                    }
-                    shooter.getHood().setAngle(newAngle);
-                  }
-                },
-                shooter));
-
-    // ==================== 操作手柄调试控制 (炮塔5度步进, Hood 1度步进) ====================
-    // 操作手柄左肩键(LB) - 炮塔向左5度
-    operatorController
-        .leftBumper()
-        .onTrue(
-            Commands.run(
-                () -> {
-                  double currentAngle = shooter.getTurret().getAngle().in(Degrees);
-                  shooter.getTurret().setAngleDirect(Degrees.of(currentAngle - 5.0));
-                  System.out.println("[Operator] Turret: " + (currentAngle - 5.0) + " deg");
-                },
-                shooter));
-
-    // 操作手柄右肩键(RB) - 炮塔向右5度
-    operatorController
-        .rightBumper()
-        .onTrue(
-            Commands.run(
-                () -> {
-                  double currentAngle = shooter.getTurret().getAngle().in(Degrees);
-                  shooter.getTurret().setAngleDirect(Degrees.of(currentAngle + 5.0));
-                  System.out.println("[Operator] Turret: " + (currentAngle + 5.0) + " deg");
+ // 操作手柄右肩键(RB) - 炮塔向右5度
+ operatorController
+     .rightBumper()
+     .onTrue(
+         Commands.run(
+             () -> {
+               double currentAngle = shooter.getTurret().getAngle().in(Degrees);
+               shooter.getTurret().setAngleDirect(Degrees.of(currentAngle + 5.0));
+               System.out.println("[Operator] Turret: " + (currentAngle + 5.0) + " deg");
                 },
                 shooter));
 
