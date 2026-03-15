@@ -103,7 +103,7 @@ public class IntakeSubsystem extends SubsystemBase {
           .withIdleMode(MotorMode.BRAKE)
           .withMotorInverted(false)
           .withStatorCurrentLimit(Amps.of(30));
-          
+
   private final SmartMotorController driveSMC =
       new SparkWrapper(driveMotor, DCMotor.getNEO(1), driveConfig);
 
