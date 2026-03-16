@@ -55,7 +55,7 @@ public class HoodSubsystem extends SubsystemBase {
           .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4)))
           .withIdleMode(MotorMode.COAST)
           .withTelemetry("HoodMotor", TelemetryVerbosity.HIGH)
-          .withStatorCurrentLimit(Amps.of(15))
+          .withStatorCurrentLimit(Amps.of(40))
           .withMotorInverted(false)
           .withClosedLoopRampRate(Seconds.of(0.25))
           .withOpenLoopRampRate(Seconds.of(0.25))
@@ -68,12 +68,12 @@ public class HoodSubsystem extends SubsystemBase {
 
   private final ArmConfig hoodConfig =
       new ArmConfig(hoodSMC)
-          .withStartingPosition(Degrees.of(15))
+          .withStartingPosition(Degrees.of(45))
           .withTelemetry("HoodMech", TelemetryVerbosity.HIGH)
-          .withSoftLimits(Degrees.of(15), Degrees.of(40))
-          .withHardLimit(Degrees.of(10), Degrees.of(45)) // 硬限位保护机构物理损坏
-          .withLength(Inches.of(10)) // 模拟需要
-          .withMass(Pounds.of(2)); // 模拟需要
+          .withSoftLimits(Degrees.of(5), Degrees.of(100))
+          .withHardLimit(Degrees.of(0), Degrees.of(120))
+          .withLength(Inches.of(10))
+          .withMass(Pounds.of(2));
 
   private final Arm hood = new Arm(hoodConfig);
 

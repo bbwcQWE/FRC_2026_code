@@ -53,8 +53,8 @@ public class ShooterSubsystem extends SubsystemBase {
   private ChassisSpeeds currentRobotSpeeds = new ChassisSpeeds();
   private SOTMCalculator.ShotParams sotmParams = null;
 
-  private static final double HOOD_MIN_ANGLE = 15.0; // Hood最小角度
-  private static final double HOOD_MAX_ANGLE = 40.0; // Hood最大角度
+  private static final double HOOD_MIN_ANGLE = 20.0; // Hood最小角度
+  private static final double HOOD_MAX_ANGLE = 70.0; // Hood最大角度
   private static final double FLYWHEEL_MIN_RPM = 1000.0; // 飞轮最小转速
   private static final double FLYWHEEL_MAX_RPM = 6000.0; // 飞轮最大转速
 
