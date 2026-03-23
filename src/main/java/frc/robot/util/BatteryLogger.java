@@ -18,7 +18,7 @@ public class BatteryLogger {
   private double totalEnergy = 0.0;
   private double batteryVoltage = 12.6;
   private double rioCurrent = 0.0;
-  private double macMiniCurrent = 0.0;
+
 
   private Map<String, Double> subsytemCurrents = new HashMap<>();
   private Map<String, Double> subsytemPowers = new HashMap<>();
@@ -34,9 +34,7 @@ public class BatteryLogger {
     this.rioCurrent = rioCurrent;
   }
 
-  public void setMacMiniCurrent(double macMiniCurrent) {
-    this.macMiniCurrent = macMiniCurrent;
-  }
+
 
   public void reportCurrentUsage(String key, double... amps) {
     double totalAmps = 0.0;
