@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.Robot;
 import frc.robot.generated.TunerConstants;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -154,6 +155,14 @@ public class Drive extends SubsystemBase {
 
     // 更新陀螺仪警报
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+
+    // 报告电池电流
+    for (int i = 0; i < 4; i++) {
+      Robot.batteryLogger.reportCurrentUsage(
+          "Drive/Module" + i,
+          modules[i].getInputs().driveCurrentAmps,
+          modules[i].getInputs().turnCurrentAmps);
+    }
   }
 
   /**

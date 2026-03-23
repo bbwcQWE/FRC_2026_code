@@ -19,9 +19,11 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.PivotConfig;
@@ -77,6 +79,9 @@ public class TurretSubsystem extends SubsystemBase {
           .withMOI(Meters.of(0.25), Pounds.of(4));
 
   private final Pivot turret = new Pivot(turretConfig);
+
+  // Mechanism2d 可视化
+  private final LoggedMechanism2d mechanism = new LoggedMechanism2d(3, 3);
 
   public TurretSubsystem() {
     // 初始化 CRT 计算器
@@ -180,6 +185,12 @@ public class TurretSubsystem extends SubsystemBase {
     updateInputs();
     Logger.processInputs("Turret", turretInputs);
     turret.updateTelemetry();
+
+    // 手动发布 Mechanism2d 数据
+    Logger.recordOutput("Turret/Mechanism", mechanism);
+
+    // 报告电池电流使用
+    Robot.batteryLogger.reportCurrentUsage("Shooter/Turret", turretInputs.current);
   }
 
   @Override

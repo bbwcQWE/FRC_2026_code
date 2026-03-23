@@ -21,9 +21,11 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.ArmConfig;
@@ -77,6 +79,9 @@ public class HoodSubsystem extends SubsystemBase {
 
   private final Arm hood = new Arm(hoodConfig);
 
+  // Mechanism2d 可视化
+  private final LoggedMechanism2d mechanism = new LoggedMechanism2d(3, 3);
+
   private void updateInputs() {
     hoodInputs.position = hood.getAngle();
     hoodInputs.voltage = hoodSMC.getVoltage().in(Volts);
@@ -125,6 +130,12 @@ public class HoodSubsystem extends SubsystemBase {
     updateInputs();
     Logger.processInputs("Hood", hoodInputs);
     hood.updateTelemetry();
+
+    // 手动发布 Mechanism2d 数据
+    Logger.recordOutput("Hood/Mechanism", mechanism);
+
+    // 报告电池电流使用
+    Robot.batteryLogger.reportCurrentUsage("Shooter/Hood", hoodInputs.current);
   }
 
   @Override

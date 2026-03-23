@@ -36,6 +36,9 @@ public final class Constants {
     REPLAY
   }
 
+  // 控制周期，用于能量计算
+  public static final double loopPeriodSecs = 0.02; // 20ms
+
   public static final class FieldConstants {
     // FRC场地尺寸 (英寸)
     public static final double FIELD_LENGTH_INCHES = 650.12;

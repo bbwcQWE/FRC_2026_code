@@ -11,19 +11,54 @@ FRC Team 11319 的 2026 赛季机器人代码，使用 AdvantageKit 架构。
 ```
 src/main/java/frc/robot/
 ├── Robot.java                 # 机器人主程序入口
-├── RobotContainer.java        # 机器人组件容器
-├── Constants.java             # 常量配置
-├── commands/                  # 命令目录
+├── RobotContainer.java       # 机器人组件容器
+├── Constants.java            # 常量配置
+├── BuildConstants.java       # 构建常量
+├── Main.java                 # 程序入口
+├── BLineExample.java         # BLine 使用示例
+├── commands/                 # 命令目录
 │   ├── BLineCommands.java
-│   └── DriveCommands.java
-├── subsystems/                # 子系统目录
+│   ├── DriveCommands.java
+│   ├── ShooterCommands.java
+│   └── DynamicBLineFollowCommand.java
+├── subsystems/               # 子系统目录
 │   ├── bline/               # B-Line 路径跟踪
+│   │   └── BLinePathFollower.java
 │   ├── drive/               # 底盘驱动 (Swerve)
+│   │   ├── Drive.java
+│   │   ├── Module.java
+│   │   ├── GyroIO.java
+│   │   ├── GyroIONavX.java
+│   │   ├── GyroIOPigeon2.java
+│   │   ├── ModuleIO.java
+│   │   ├── ModuleIOTalonFX.java
+│   │   ├── ModuleIOTalonFXS.java
+│   │   ├── ModuleIOSim.java
+│   │   └── PhoenixOdometryThread.java
 │   ├── feeder/              # 供料系统
-│   ├── intake/              #  intakes
-│   ├── shooter/             # 射击系统 (Flywheel, Hood, Turret)
-│   └── vision/              # 视觉系统 (PhotonVision)
-└── util/                     # 工具类
+│   │   └── FeederSubsystem.java
+│   ├── intake/              #  Intake
+│   │   └── IntakeSubsystem.java
+│   ├── shooter/             # 射击系统
+│   │   ├── FlyWheelSubsystem.java
+│   │   ├── HoodSubsystem.java
+│   │   ├── ShooterSubsystem.java
+│   │   ├── TurretSubsystem.java
+│   │   ├── SOTMCalculator.java
+│   │   └── TurretCRTCalculator.java
+│   └── vision/              # 视觉系统
+│       ├── Vision.java
+│       ├── VisionConstants.java
+│       ├── VisionIO.java
+│       ├── VisionIOPhotonVision.java
+│       └── VisionIOPhotonVisionSim.java
+├── generated/               # 自动生成代码
+│   └── TunerConstants.java
+└── util/                    # 工具类
+    ├── BatteryLogger.java
+    ├── Field2dDashboard.java
+    ├── PhoenixUtil.java
+    └── Zones.java
 ```
 
 ## 技术栈
@@ -33,14 +68,17 @@ src/main/java/frc/robot/
 - **架构**: AdvantageKit
 - **软件库**:
   - YAMS — 机构控制库 (电梯、机械臂、炮塔等)
+  - BLine-Lib — 路径跟踪库
+  - PDLib — 位置检测库
 - **电机控制器**:
-  - CTRE TalonFX (驱动电机)
+  - CTRE TalonFX / TalonFXS (驱动电机)
   - REV Spark MAX (辅助电机)
 - **传感器**:
   - CTRE CANcoder (编码器)
   - CTRE Pigeon 2 (陀螺仪)
+  - NavX (可选陀螺仪)
 - **视觉**:
-  - PhotonVision (视觉)
+  - PhotonVision
 
 ## 构建与部署
 
@@ -61,6 +99,17 @@ src/main/java/frc/robot/
 # 运行模拟器
 ./gradlew simulate
 ```
+
+## 调试与调优指南
+
+项目包含详细的子系统调试和调优指南，位于 `docs/` 目录：
+
+- [子系统调试与调优指南](docs/Subsystem-Debugging-Tuning-Guide.md)
+- [射击系统调试与调优指南](docs/Shooter-Subsystem-Debugging-Tuning-Guide.md)
+- [供料系统调试与调优指南](docs/Feeder-Subsystem-Debugging-Tuning-Guide.md)
+- [Intake 系统调试与调优指南](docs/Intake-Subsystem-Debugging-Tuning-Guide.md)
+- [Zones 配置调试与调优指南](docs/Zones-Configuration-Debugging-Tuning-Guide.md)
+- [BLine-Lib 分析报告](docs/BLine-Lib-Analysis-Report.md)
 
 ## 许可证
 

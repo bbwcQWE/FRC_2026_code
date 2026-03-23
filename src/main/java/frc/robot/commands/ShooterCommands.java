@@ -57,11 +57,10 @@ public class ShooterCommands {
                 () -> {
                   Logger.recordOutput("ShooterCommands/Shooting", false);
                   feeder.stopFeeder();
-                  shooter.setShooting(false);
-                  shooter.setReady(false);
                 },
                 feeder,
                 shooter)
+            .andThen(shooter.cancelShoot())
             .withName("Shoot-Stop"));
   }
 
@@ -126,14 +125,8 @@ public class ShooterCommands {
    * @return 停止命令
    */
   public static Command stopShooter(ShooterSubsystem shooter, FeederSubsystem feeder) {
-    return Commands.runOnce(
-            () -> {
-              Logger.recordOutput("ShooterCommands/StopShooter", true);
-              shooter.setReady(false);
-              shooter.setAiming(false);
-              shooter.setShooting(false);
-            },
-            shooter)
+    return shooter
+        .cancelShoot()
         .andThen(shooter.stopShooter())
         .andThen(feeder.stopFeeder())
         .withName("StopShooter");
@@ -217,14 +210,13 @@ public class ShooterCommands {
 
         // 停止
         Commands.runOnce(
-            () -> {
-              Logger.recordOutput("ShooterCommands/ManualShoot", false);
-              feeder.stopFeeder();
-              shooter.setShooting(false);
-              shooter.setReady(false);
-            },
-            feeder,
-            shooter));
+                () -> {
+                  Logger.recordOutput("ShooterCommands/ManualShoot", false);
+                  feeder.stopFeeder();
+                },
+                feeder)
+            .andThen(shooter.cancelShoot())
+            .withName("ManualShoot"));
   }
 
   /**
@@ -248,13 +240,13 @@ public class ShooterCommands {
 
         // 停止
         Commands.runOnce(
-            () -> {
-              Logger.recordOutput("ShooterCommands/QuickShoot", false);
-              feeder.stopFeeder();
-              shooter.setShooting(false);
-            },
-            feeder,
-            shooter));
+                () -> {
+                  Logger.recordOutput("ShooterCommands/QuickShoot", false);
+                  feeder.stopFeeder();
+                },
+                feeder)
+            .andThen(shooter.cancelShoot())
+            .withName("QuickShoot"));
   }
 
   /**

@@ -138,4 +138,9 @@ public class Module {
   public double getFFCharacterizationVelocity() {
     return Units.radiansToRotations(inputs.driveVelocityRadPerSec);
   }
+
+  /** Returns the module IO inputs for battery current logging. */
+  public ModuleIOInputsAutoLogged getInputs() {
+    return inputs;
+  }
 }

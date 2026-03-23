@@ -24,9 +24,11 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.ArmConfig;
@@ -111,6 +113,9 @@ public class IntakeSubsystem extends SubsystemBase {
       new FlyWheelConfig(driveSMC).withDiameter(Meters.of(0.0762)).withMass(Kilograms.of(0.5));
 
   private final FlyWheel drive = new FlyWheel(driveFlywheelConfig);
+
+  // Mechanism2d 可视化
+  private final LoggedMechanism2d mechanism = new LoggedMechanism2d(3, 3);
 
   private void updateInputs() {
     intakeInputs.turnPosition = turn.getAngle();
@@ -200,6 +205,13 @@ public class IntakeSubsystem extends SubsystemBase {
     Logger.processInputs("Intake", intakeInputs);
     turn.updateTelemetry();
     drive.updateTelemetry();
+
+    // 手动发布 Mechanism2d 数据
+    Logger.recordOutput("Intake/Mechanism", mechanism);
+
+    // 报告电池电流使用
+    Robot.batteryLogger.reportCurrentUsage(
+        "Intake", intakeInputs.turnCurrent, intakeInputs.driveCurrent);
   }
 
   @Override

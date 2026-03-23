@@ -89,14 +89,18 @@ public class VisionConstants {
     }
   }
 
-  // Limelight相机名称，必须与Limelight上配置的名称匹配
-  // Limelight使用NetworkTables，不需要额外依赖
-  public static String camera0Name = "limelight";
+  // ==================== PhotonVision 相机配置 ====================
+  // 相机名称，必须与PhotonVision上配置的名称匹配
+  public static String camera0Name = "camera_0";
+  public static String camera1Name = "camera_1";
 
   // 机器人到相机的变换
-  // (Limelight不使用，请在Web UI中配置)
+  // X: 机器人前方, Y: 机器人左侧, Z: 机器人上方
+  // 根据实际安装位置调整
   public static Transform3d robotToCamera0 =
       new Transform3d(0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, 0.0));
+  public static Transform3d robotToCamera1 =
+      new Transform3d(-0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, Math.PI));
 
   // 基本过滤阈值
   public static double maxAmbiguity = 0.3; // 最大歧义度
@@ -115,22 +119,11 @@ public class VisionConstants {
         1.0 // 相机 1
       };
 
-  // MegaTag 2观测的乘数
+  // PhotonVision观测的乘数 (PhotonVision使用单目/多目标姿态估计)
+  public static double linearStdDevPhotonVisionFactor = 1.0;
+  public static double angularStdDevPhotonVisionFactor = 1.0;
+
+  // MegaTag 2观测的乘数 (保留用于Limelight兼容)
   public static double linearStdDevMegatag2Factor = 0.5; // 比完整3D解算更稳定
   public static double angularStdDevMegatag2Factor = Double.POSITIVE_INFINITY; // 无旋转数据
-
-  // ==================== QuestNav 配置 ====================
-  // QuestNav 标准差（信任值）- QuestNav 基于 IMU 死定位，需要较高信任值
-  public static double[] questNavStdDevFactors =
-      new double[] {
-        0.05, // X 方向信任到 5cm
-        0.05, // Y 方向信任到 5cm
-        0.1 // 旋转信任到约 5.7 度
-      };
-
-  // 从机器人中心到 Quest 头显的变换
-  // 需要根据实际安装位置测量调整
-  // X: 机器人前方, Y: 机器人左侧, Z: 机器人上方
-  // TODO: 根据实际 Quest 安装位置调整这些值
-  public static Transform3d robotToQuest = new Transform3d(0.3, 0.0, 0.5, new Rotation3d(0, 0, 0));
 }

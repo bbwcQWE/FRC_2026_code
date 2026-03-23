@@ -17,9 +17,11 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.FlyWheelConfig;
@@ -97,6 +99,9 @@ public class FeederSubsystem extends SubsystemBase {
           .withMass(edu.wpi.first.units.Units.Kilograms.of(0.227));
 
   private final FlyWheel indexer = new FlyWheel(indexerFlywheelConfig);
+
+  // Mechanism2d 可视化
+  private final LoggedMechanism2d mechanism = new LoggedMechanism2d(3, 3);
 
   private void updateInputs() {
     feederInputs.washingMachineVelocity = washingMachine.getSpeed();
@@ -184,6 +189,13 @@ public class FeederSubsystem extends SubsystemBase {
     Logger.processInputs("Feeder", feederInputs);
     washingMachine.updateTelemetry();
     indexer.updateTelemetry();
+
+    // 手动发布 Mechanism2d 数据
+    Logger.recordOutput("Feeder/Mechanism", mechanism);
+
+    // 报告电池电流
+    Robot.batteryLogger.reportCurrentUsage(
+        "Feeder", feederInputs.washingMachineCurrent, feederInputs.indexerCurrent);
   }
 
   @Override

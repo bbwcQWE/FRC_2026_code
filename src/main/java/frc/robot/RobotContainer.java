@@ -41,7 +41,7 @@ import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
-import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.Field2dDashboard;
 import frc.robot.util.Zones;
@@ -53,6 +53,11 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * 相反，机器人的结构（包括子系统、OI设备和按钮映射）应该在这里声明。
  */
 public class RobotContainer {
+  // ==================== 常量定义 ====================
+  private static final double JOYSTICK_DEADZONE = 0.2;
+  private static final double TURRET_STEP_DEGREES = 5.0;
+  private static final double HOOD_STEP_DEGREES = 1.0;
+
   // 子系统
   private final Drive drive;
   private final Vision vision;
@@ -106,11 +111,12 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
-        // 使用Limelight相机实例化视觉子系统
+        // 使用PhotonVision相机实例化视觉子系统
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOLimelight(VisionConstants.camera0Name, drive::getRotation));
+                new VisionIOPhotonVision(
+                    VisionConstants.camera0Name, VisionConstants.robotToCamera0));
 
         // 初始化feeder和intake子系统
         feeder = new FeederSubsystem();
@@ -335,6 +341,7 @@ public class RobotContainer {
    * XboxController}）创建， 然后传递给{@link edu.wpi.first.wpilibj2.command.button.JoystickButton}。
    */
   private void configureButtonBindings() {
+    // ==================== 驾驶员基础驱动控制 ====================
     // 默认命令，常规场相对驱动
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
@@ -343,6 +350,7 @@ public class RobotContainer {
             () -> -mainController.getLeftX(),
             () -> -mainController.getRightX()));
 
+    // ==================== 驾驶员锁定控制 ====================
     // 按住A按钮时锁定到0°
     mainController
         .a()
@@ -377,6 +385,7 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
+    // ==================== 驾驶员BLine控制 ====================
     // 按下RB按钮时，从当前位置动态生成BLine路径到目标位置 (6.4, 6.5)
     mainController
         .rightBumper()
@@ -392,7 +401,7 @@ public class RobotContainer {
               double leftY = Math.abs(mainController.getLeftY());
               double leftX = Math.abs(mainController.getLeftX());
               // 超过0.2阈值才认为是"打杆"操作
-              return leftY > 0.2 || leftX > 0.2;
+              return leftY > JOYSTICK_DEADZONE || leftX > JOYSTICK_DEADZONE;
             })
         .whileTrue(
             Commands.run(
@@ -409,6 +418,7 @@ public class RobotContainer {
     // 使用操作手柄(插槽1)上的按钮来取消自动命令
     // 这样不会与驾驶员的驱动控制冲突
 
+    // ==================== 操作手柄BLine控制 ====================
     // 操作手柄左肩键(LB) - 取消所有自动命令并停止
     operatorController
         .leftBumper()
@@ -456,6 +466,7 @@ public class RobotContainer {
     // SysId测试用于shooter子系统
     // controller.y().whileTrue(shooter.getHood().sysId());
 
+    // ==================== Zone 触发器配置 ====================
     // Hood自动收回 - 当进入trench区域时收回hood
     if (hood != null) {
       inTrenchZoneTrigger.onTrue(hood.setAngle(Constants.FieldConstants.MIN_HOOD_ANGLE));
@@ -483,6 +494,7 @@ public class RobotContainer {
                 },
                 drive));
 
+    // ==================== 手动模式C炮塔控制 ====================
     // 手动模式C下：肩键L - 炮塔向左手动旋转
     mainController
         .leftBumper()
@@ -515,6 +527,7 @@ public class RobotContainer {
                 },
                 shooter));
 
+    // ==================== 手动模式C Hood控制 ====================
     // 手动模式C下：D-pad下 - 切换Hood角度
     // false: 紧贴枢纽入框角度, true: 5单位距离时的射击角度
     mainController
@@ -540,6 +553,7 @@ public class RobotContainer {
                 shooter));
 
     // ==================== 操作手柄调试控制 (炮塔5度步进, Hood 1度步进) ====================
+    // ==================== 操作手柄调试控制 ====================
     // 操作手柄左肩键(LB) - 炮塔向左5度
     operatorController
         .leftBumper()
@@ -547,7 +561,9 @@ public class RobotContainer {
             Commands.run(
                 () -> {
                   double currentAngle = shooter.getTurret().getAngle().in(Degrees);
-                  shooter.getTurret().setAngleDirect(Degrees.of(currentAngle - 5.0));
+                  shooter
+                      .getTurret()
+                      .setAngleDirect(Degrees.of(currentAngle - TURRET_STEP_DEGREES));
                   System.out.println("[Operator] Turret: " + (currentAngle - 5.0) + " deg");
                 },
                 shooter));
@@ -559,7 +575,9 @@ public class RobotContainer {
             Commands.run(
                 () -> {
                   double currentAngle = shooter.getTurret().getAngle().in(Degrees);
-                  shooter.getTurret().setAngleDirect(Degrees.of(currentAngle + 5.0));
+                  shooter
+                      .getTurret()
+                      .setAngleDirect(Degrees.of(currentAngle + TURRET_STEP_DEGREES));
                   System.out.println("[Operator] Turret: " + (currentAngle + 5.0) + " deg");
                 },
                 shooter));
@@ -571,7 +589,7 @@ public class RobotContainer {
             Commands.run(
                 () -> {
                   double currentAngle = shooter.getHood().getAngle().in(Degrees);
-                  shooter.getHood().setAngle(Degrees.of(currentAngle - 1.0));
+                  shooter.getHood().setAngle(Degrees.of(currentAngle - HOOD_STEP_DEGREES));
                   System.out.println("[Operator] Hood: " + (currentAngle - 1.0) + " deg");
                 },
                 shooter));
@@ -583,7 +601,7 @@ public class RobotContainer {
             Commands.run(
                 () -> {
                   double currentAngle = shooter.getHood().getAngle().in(Degrees);
-                  shooter.getHood().setAngle(Degrees.of(currentAngle + 1.0));
+                  shooter.getHood().setAngle(Degrees.of(currentAngle + HOOD_STEP_DEGREES));
                   System.out.println("[Operator] Hood: " + (currentAngle + 1.0) + " deg");
                 },
                 shooter));

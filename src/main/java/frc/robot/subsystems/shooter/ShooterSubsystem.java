@@ -12,6 +12,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.drive.Drive;
 import java.util.function.Supplier;
@@ -291,6 +292,24 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public void setShooting(boolean shooting) {
     isShooting = shooting;
+  }
+
+  /**
+   * 取消射击 - 集中管理所有状态的清理
+   *
+   * @return 取消射击命令
+   */
+  public Command cancelShoot() {
+    return Commands.runOnce(
+        () -> {
+          isReady = false;
+          isAiming = false;
+          isShooting = false;
+          isSOTMEnabled = false;
+          sotmParams = null;
+          Logger.recordOutput("ShooterCommands/Shooting", false);
+          Logger.recordOutput("ShooterCommands/PrepareToShoot", false);
+        });
   }
 
   /**

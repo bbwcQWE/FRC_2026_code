@@ -1,0 +1,26 @@
+{
+  "fileName": "PDLib-2026.json",
+  "name": "PDLib",
+  "version": "2026.0.0",
+  "frcYear": "2026",
+  "uuid": "f4c9c7fd-2d70-44d3-9d62-1e9b3a3e57d8",
+  "mavenUrls": [
+    "https://maven.prometheus-dynamics.ca/Prometheus-Dynamics/PDLib"
+  ],
+  "jsonUrl": "https://raw.githubusercontent.com/Prometheus-Dynamics/PDLib/refs/heads/main/vendordeps/PDLib-2026.json",
+  "javaDependencies": [
+    {
+      "groupId": "ca.pd.lib",
+      "artifactId": "pdlib-core",
+      "version": "2026.0.0"
+    },
+    {
+      "groupId": "ca.pd.lib",
+      "artifactId": "pdlib-helios",
+      "version": "2026.0.0"
+    }
+  ],
+  "jniDependencies": [],
+  "cppDependencies": [],
+  "requires": []
+}
