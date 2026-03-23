@@ -1,5 +1,5 @@
-// Copyright (c) 2025-2026 Team11319 Polaris
-// https://github.com/bbwcQWE
+// Copyright (c) 2025-2026 FRC Team
+// https://github.com/bbwcQWE/FRC_2026_code
 //
 // SOTM (Shooting on the Move) 计算器
 // 基于Eeshwar/WPILib向量方案实现

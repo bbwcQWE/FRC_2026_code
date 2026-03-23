@@ -13,7 +13,7 @@ public class VisionConstants {
   /** AprilTag场地类型枚举 */
   public enum AprilTagFieldType {
     kDefault("默认场地 (2026)"),
-    kCustom("自定义场地 (11319)");
+    kCustom("自定义场地");
 
     private final String displayName;
 
@@ -61,7 +61,7 @@ public class VisionConstants {
         case kCustom:
           // 加载自定义场地
           aprilTagLayout = AprilTagFieldLayout.loadFromResource("11319CostField_V1.json");
-          System.out.println("[VisionConstants] 已加载自定义AprilTag场地: 11319CostField_V1.json");
+          System.out.println("[VisionConstants] 已加载自定义AprilTag场地");
           break;
         case kDefault:
         default:

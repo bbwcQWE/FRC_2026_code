@@ -1,5 +1,5 @@
-// Copyright (c) 2025-2026 11319 Polaris
-// https://github.com/bbwcQWE
+// Copyright (c) 2025-2026 FRC Team
+// https://github.com/bbwcQWE/FRC_2026_code
 //
 // 基于 Littleton Robotics AdvantageKit TalonFX(S) Swerve 模板
 // http://github.com/Mechanical-Advantage

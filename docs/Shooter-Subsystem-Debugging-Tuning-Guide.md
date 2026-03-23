@@ -401,5 +401,5 @@ public static final double HOOD_ANGLE_TOLERANCE_DEG = 1.5;   // 角度容差
 
 ---
 
-*本文档基于11319_2026_Alphabot_code代码库分析生成*
+*本文档基于代码库分析生成*
 *最后更新: 2026-03-20*

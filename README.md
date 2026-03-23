@@ -1,10 +1,10 @@
-# Team 11319 - 2026 Season Robot Code
+# FRC 2026 Season Robot Code
 
 ![FRC](https://img.shields.io/badge/FRC-2026-blue)
 ![Java](https://img.shields.io/badge/Java-17+-green)
 ![WPILib](https://img.shields.io/badge/WPILib-2026-orange)
 
-FRC Team 11319 的 2026 赛季机器人代码，使用 AdvantageKit 架构。
+FRC 2026 赛季机器人代码，使用 AdvantageKit 架构。
 
 ## 项目结构
 
@@ -133,4 +133,4 @@ src/main/java/frc/robot/
 
 ---
 
-Copyright (c) 2026 Team 11319. All rights reserved.
+Copyright (c) 2026 FRC Team. All rights reserved.

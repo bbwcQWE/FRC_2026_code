@@ -1,5 +1,5 @@
-// Copyright (c) 2025-2026 Team11319 Polaris
-// https://github.com/bbwcQWE
+// Copyright (c) 2025-2026 FRC Team
+// https://github.com/bbwcQWE/FRC_2026_code
 // 发射器子系统 - Hood（瞄准机构）
 
 package frc.robot.subsystems.shooter;
