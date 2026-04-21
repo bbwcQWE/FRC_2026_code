@@ -475,4 +475,4 @@ FollowPath.setTranslationListLoggingConsumer(pair -> Logger.recordOutput(pair.ge
 
 ---
 
-*本报告基于 BLine-Lib v0.5.1 与项目代码 (commit: 11319_2026_Alphabot_code) 分析生成。*
+*本报告基于 BLine-Lib v0.5.1 与项目代码分析生成。*

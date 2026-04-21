@@ -1,5 +1,5 @@
-// Copyright (c) 2025-2026 11319 Polaris
-// https://github.com/bbwcQWE
+// Copyright (c) 2025-2026 FRC Team
+// https://github.com/bbwcQWE/FRC_2026_code
 //
 // Use of this source code is governed by a BSD
 // license that can be found in the LICENSE file

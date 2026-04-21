@@ -1,5 +1,5 @@
-// Copyright (c) 2025-2026 Team11319 Polaris
-// https://github.com/bbwcQWE
+// Copyright (c) 2025-2026 FRC Team
+// https://github.com/bbwcQWE/FRC_2026_code
 // Turret CRT 计算器 - 使用两个CANcoder计算炮塔绝对角度
 
 package frc.robot.subsystems.shooter;

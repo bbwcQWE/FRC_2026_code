@@ -1,5 +1,5 @@
-// Copyright (c) 2025-2026 11319 Polaris
-// https://github.com/bbwcQWE
+// Copyright (c) 2025-2026 FRC Team
+// https://github.com/bbwcQWE/FRC_2026_code
 //
 // 本项目源代码受BSD许可证约束，详情请参阅LICENSE文件
 

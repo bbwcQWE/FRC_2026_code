@@ -1,5 +1,5 @@
-// Copyright (c) 2025-2026 Team11319 Polaris
-// https://github.com/bbwcQWE
+// Copyright (c) 2025-2026 FRC Team
+// https://github.com/bbwcQWE/FRC_2026_code
 // 供料子系统 - 控制供料机构和分度器
 
 package frc.robot.subsystems.feeder;

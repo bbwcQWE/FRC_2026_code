@@ -364,5 +364,5 @@ allScoringZones.contains(drive::getPose).whileTrue(runShooterCommand);
 
 ---
 
-*本文档基于11319_2026_Alphabot_code代码库分析生成*
+*本文档基于代码库分析生成*
 *最后更新: 2026-03-20*
